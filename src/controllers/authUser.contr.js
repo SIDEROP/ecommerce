@@ -31,13 +31,13 @@ export const registerUser = asyncHandler(async (req, res) => {
     });
 
     await newUser.save();
-
-    jwtTokenGenerat(res, newUser._id);
+    const token = jwtTokenGenerat(res, newUser._id);
 
     res.status(201).json(
         new ApiResponse(
             201,
             {
+                token,
                 username: newUser.username,
                 email: newUser.email,
                 role: newUser.role,
@@ -93,13 +93,12 @@ export const loginAdmin = asyncHandler(async (req, res) => {
     if (!isMatch) {
         throw new ApiError(401, 'Invalid credentials');
     }
-
-    jwtTokenGenerat(res, user._id);
+    const token = jwtTokenGenerat(res, user._id);
 
     res.status(200).json(
         new ApiResponse(
             200,
-            { username: user.username, email: user.email, role: user.role },
+            { token,username: user.username, email: user.email, role: user.role },
             'User logged in successfully'
         )
     );
@@ -122,11 +121,12 @@ export const logoutUser = asyncHandler((req, res) => {
     res.cookie('token', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 0, // This effectively deletes the cookie
+        maxAge: 0,
     });
+    let token = null
 
     res.status(200).json(
-        new ApiResponse(200, null, 'User logged out successfully')
+        new ApiResponse(200, {token}, 'User logged out successfully')
     );
 });
 
