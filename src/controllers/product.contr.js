@@ -41,17 +41,17 @@ export const createProduct = asyncHandler(async (req, res) => {
     }
 
     // Check for image uploads
-    if (!req.files || req.files.length === 0) {
+    if (!req.files || req?.files?.length === 0) {
         throw new ApiError(400, 'At least one image is required.');
     }
 
     let uploadedImages;
 
     // Handle image uploads
-    if (req.files.length > 0) {
-        if (req.files.length > 1) {
+    if (req.files?.length > 0) {
+        if (req.files?.length > 1) {
             uploadedImages = await CloudinaryService.uploadMultipleImages(
-                req.files.map((file) => file.path)
+                req.files?.map((file) => file.path)
             );
         } else {
             const singleFilePath = req.files[0].path;
@@ -61,8 +61,8 @@ export const createProduct = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'At least one image is required.');
     }
 
-    const colorsArray = Array.isArray(colors) ? colors : colors.split(',').map(color => color.trim());
-    const flavorsArray = flavors ? (Array.isArray(flavors) ? flavors : flavors.split(',').map(flavor => flavor.trim())) : [];
+    const colorsArray = Array?.isArray(colors) ? colors : colors?.split(',')?.map(color => color?.trim());
+    const flavorsArray = flavors ? (Array?.isArray(flavors) ? flavors : flavors?.split(',')?.map(flavor => flavor?.trim())) : [];
     
     const newProduct = new Product({
         name,
@@ -78,9 +78,9 @@ export const createProduct = asyncHandler(async (req, res) => {
         flavors: flavorsArray,
         brand,
         // Only add size, material, and occasion if they are provided
-        ...(size && { size: Array.isArray(size) ? size.map(s => s.trim()) : size.split(',').map(s => s.trim()) }),
+        ...(size && { size: Array?.isArray(size) ? size?.map(s => s?.trim()) : size?.split(',')?.map(s => s.trim()) }),
         ...(material && { material }),
-        ...(occasion && { occasion: Array.isArray(occasion) ? occasion.map(o => o.trim()) : occasion.split(',').map(o => o.trim()) }),
+        ...(occasion && { occasion: Array?.isArray(occasion) ? occasion?.map(o => o.trim()) : occasion?.split(',')?.map(o => o.trim()) }),
     });
 
     await newProduct.save();
