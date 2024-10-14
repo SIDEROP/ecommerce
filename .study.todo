@@ -1,0 +1,41 @@
+1. > Rate Limiting and Throttling
+To prevent abuse or overloading your Stripe endpoint, consider implementing rate limiting on your API. You can use a package like express-rate-limit.
+
+npm install express-rate-limit
+
+import rateLimit from 'express-rate-limit';
+
+const checkoutLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+app.use('/create-checkout-session', checkoutLimiter);
+
+
+
+
+2. > Monitoring & Logging
+Implement logging and monitoring to track errors and performance in production. Consider using a logging service like winston or third-party monitoring solutions like Sentry, Datadog, or Loggly.
+
+npm install winston
+
+import winston from 'winston';
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }));
+}
+
+export default logger;

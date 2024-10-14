@@ -1,0 +1,75 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Output directories
+dist/
+build/
+coverage/
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.bak
+
+# Debug files
+*.log
+*.out
+*.pid
+*.seed
+*.gz
+*.cover
+
+# Compiled files
+*.tsbuildinfo
+*.min.js
+*.min.css
+
+# Static files
+public/
+uploads/
+static/
+
+# Swagger and documentation
+src/api-doc/swagger-output.json
+
+# Ignore compiled and generated files
+*.map
+*.d.ts
+
+# Ignore coverage and test results
+coverage/
+.nyc_output/
+.jest/
+*.lcov
+
+# Cache directories
+.cache/

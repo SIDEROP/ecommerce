@@ -1,0 +1,44 @@
+node_modules
+public
+uploads
+src
+├── config
+    └── strip.js
+├── controllers
+│   ├── auth.contr.js
+│   ├── product.contr.js
+│   ├── order.contr.js
+│   ├── cart.contr.js
+│   ├── paymentGateway.contr.js
+├── db
+│   ├── connect.js
+├── middlewares
+│   ├── auth.js
+│   └── multer.js
+├── models
+│   ├── User.model.js
+│   ├── Product.model.js
+│   └── Order.model.js
+│   └── Cart.model.js
+│   └── Addresses.model.js
+├── routes
+│   ├── auth.routes.js
+│   ├── product.routes.js
+│   ├── order.routes.js
+│   ├── cart.routes.js
+│   └── paymentGateway.routes.js
+├── utils
+│   ├── apiError.js
+│   ├── apiResponse.js
+│   ├── asyncHandler.js
+│   └── jwtToken.js
+│   └── jwtVerifyToken.js
+│   └── cloudinary.js
+├── app.js
+├── index.js
+└── const.js
+.env
+.prettierignore
+.prettierc
+package-lock.json
+package.json

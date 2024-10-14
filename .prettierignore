@@ -1,0 +1,40 @@
+# Node.js build artifacts and dependencies
+node_modules
+dist
+build
+coverage
+
+# Logs
+*.log
+
+# Environment variables and configuration
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Ignore specific config files
+package-lock.json
+yarn.lock
+
+# Ignore compiled files
+*.min.js
+*.min.css
+*.min.html
+
+# Ignore specific file types
+*.tsbuildinfo
+*.md
+
+# Ignore public files and assets
+public/*
+uploads/*
+static/*
+
+# Ignore swagger and API documentation output
+src/api-doc/swagger-output.json
+
+# Ignore specific directories
+.temp
+.cache
