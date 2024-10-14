@@ -65,12 +65,12 @@ export const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'Invalid credentials');
     }
 
-    jwtTokenGenerat(res, user._id);
+    const token = jwtTokenGenerat(res, user._id);
 
     res.status(200).json(
         new ApiResponse(
             200,
-            { username: user.username, email: user.email, role: user.role },
+            {token, username: user.username, email: user.email, role: user.role },
             'User logged in successfully'
         )
     );

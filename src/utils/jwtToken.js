@@ -12,4 +12,5 @@ export const jwtTokenGenerat = (res, userId, cookieName = 'token', options = {})
   const cookieOptions = { ...defaultOptions, ...options };
 
   res.cookie(cookieName, token, cookieOptions);
+  return token
 };
