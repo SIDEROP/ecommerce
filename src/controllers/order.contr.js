@@ -131,7 +131,6 @@ export const getAllUserOrders = asyncHandler(async (req, res) => {
         }
     })
 
-    // Send the response with the structured data
     res.status(200).json(
         new ApiResponse(200, structuredOrders, 'Orders retrieved successfully.')
     )

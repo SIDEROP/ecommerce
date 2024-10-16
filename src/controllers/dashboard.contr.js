@@ -52,7 +52,6 @@ export const getDashboardSummary = asyncHandler(async (req, res) => {
             { $sort: { _id: 1 } },
         ])
 
-        // Order stats
         const totalOrders = await Order.countDocuments()
         const pendingOrders = await Order.countDocuments({ status: 'pending' })
         const completedOrders = await Order.countDocuments({
@@ -62,7 +61,6 @@ export const getDashboardSummary = asyncHandler(async (req, res) => {
             status: 'canceled',
         })
 
-        // Fetch order trends over the last month
         const orderTrends = await Order.aggregate([
             {
                 $match: {
@@ -87,13 +85,11 @@ export const getDashboardSummary = asyncHandler(async (req, res) => {
             { $sort: { _id: 1 } },
         ])
 
-        // Total sales from completed orders
         const totalSales = await Order.aggregate([
             { $match: { status: 'completed' } },
             { $group: { _id: null, total: { $sum: '$totalAmount' } } },
         ])
 
-        // Monthly earnings report
         const monthlyEarnings = await Order.aggregate([
             {
                 $match: { status: 'completed' },
@@ -109,7 +105,6 @@ export const getDashboardSummary = asyncHandler(async (req, res) => {
             { $sort: { _id: 1 } },
         ])
 
-        // Total completed orders count
         const totalCompletedOrders = await Order.countDocuments({
             status: 'completed',
         })
@@ -186,7 +181,7 @@ export const toggleUserStatus = asyncHandler(async (req, res) => {
         if (action === 'block') {
             user.status = 'blocked'
         } else if (action === 'unblock') {
-            user.status = 'active' // or any other default status
+            user.status = 'active'
         } else {
             throw new ApiError(400, 'Invalid action. Use "block" or "unblock".')
         }
@@ -203,30 +198,28 @@ export const toggleUserStatus = asyncHandler(async (req, res) => {
 // Refund Product
 export const fetchUserOrdersAndProcessRefund = asyncHandler(
     async (req, res) => {
-        const { userId } = req.params // User ID from request parameters
+        const { userId } = req.params 
 
         try {
-            // Fetch all orders for the user
-            const orders = await Order.find({ user: userId }) // Assuming `user` field in Order model links to User model
+
+            const orders = await Order.find({ user: userId }) 
             
             if (!orders.length) {
                 throw new ApiError(404, 'No orders found for this user')
             }
 
-            // Count the number of refunded orders
+
             const refundedOrdersCount = orders.filter(
                 (order) => order.status === 'refunded'
             ).length
 
-            // Check if the user should be blocked
             const user = await User.findById(userId)
             if (!user) {
                 throw new ApiError(404, 'User not found')
             }
 
-            // Block the user if they have exceeded the refund limit
             if (refundedOrdersCount >= 10) {
-                user.status = 'blocked' // Update user status to blocked
+                user.status = 'blocked' 
                 await user.save()
                 throw new ApiError(
                     403,
@@ -234,7 +227,6 @@ export const fetchUserOrdersAndProcessRefund = asyncHandler(
                 )
             }
             
-            // Response with the user's orders and refund count
             res.status(200).json(
                 new ApiResponse(
                     200,
@@ -256,169 +248,6 @@ export const fetchUserOrdersAndProcessRefund = asyncHandler(
     }
 )
 
-// export const fetchDailyEarnings = asyncHandler(async (req, res) => {
-//     try {
-//         let { startDate, endDate } = req.query
-//         const completedMatchCondition = { status: 'completed' }
-//         const lostMatchCondition = {
-//             status: { $in: ['cancelled', 'abandoned'] },
-//         }
-
-//         // Date range validation
-//         if (!startDate && !endDate) {
-//             const today = new Date()
-//             endDate = today.toISOString().split('T')[0] // Current date
-//             const lastWeek = new Date(today.setDate(today.getDate() - 7))
-//             startDate = lastWeek.toISOString().split('T')[0] // 7 days ago
-//         } else {
-//             // Validate provided date formats
-//             if (!isValidDate(startDate) || !isValidDate(endDate)) {
-//                 throw new ApiError(400, 'Invalid date format. Use YYYY-MM-DD.')
-//             }
-//         }
-
-//         // Construct match condition for date range
-//         completedMatchCondition.createdAt = {}
-//         lostMatchCondition.createdAt = {}
-//         if (startDate) {
-//             completedMatchCondition.createdAt.$gte = new Date(startDate)
-//             lostMatchCondition.createdAt.$gte = new Date(startDate)
-//         }
-//         if (endDate) {
-//             completedMatchCondition.createdAt.$lte = new Date(endDate)
-//             lostMatchCondition.createdAt.$lte = new Date(endDate)
-//         }
-
-//         // Fetch completed daily earnings
-//         const dailyEarnings = await Order.aggregate([
-//             {
-//                 $match: completedMatchCondition,
-//             },
-//             {
-//                 $group: {
-//                     _id: {
-//                         $dateToString: {
-//                             format: '%Y-%m-%d',
-//                             date: '$createdAt',
-//                         },
-//                     },
-//                     total: { $sum: '$totalAmount' },
-//                     transactionCount: { $sum: 1 }, // Count transactions
-//                 },
-//             },
-//             {
-//                 $sort: { _id: 1 },
-//             },
-//         ])
-
-//         // Fetch lost sales
-//         const lostSales = await Order.aggregate([
-//             {
-//                 $match: lostMatchCondition,
-//             },
-//             {
-//                 $group: {
-//                     _id: {
-//                         $dateToString: {
-//                             format: '%Y-%m-%d',
-//                             date: '$createdAt',
-//                         },
-//                     },
-//                     totalLost: { $sum: '$totalAmount' },
-//                     lostOrderCount: { $sum: 1 }, // Count lost orders
-//                 },
-//             },
-//             {
-//                 $sort: { _id: 1 },
-//             },
-//         ])
-
-//         // Fetch revenue by product/service category
-//         const revenueByCategory = await Order.aggregate([
-//             {
-//                 $match: completedMatchCondition,
-//             },
-//             {
-//                 $group: {
-//                     _id: '$category', // Group by category field (make sure orders have a 'category' field)
-//                     totalCategoryEarnings: { $sum: '$totalAmount' },
-//                     categoryOrderCount: { $sum: 1 }, // Count orders by category
-//                 },
-//             },
-//             {
-//                 $sort: { totalCategoryEarnings: -1 }, // Sort by highest earning category
-//             },
-//         ])
-
-//         // Total earnings across the range
-//         const totalEarnings = dailyEarnings.reduce(
-//             (acc, curr) => acc + curr.total,
-//             0
-//         )
-//         // Total transactions across the range
-//         const totalTransactions = dailyEarnings.reduce(
-//             (acc, curr) => acc + curr.transactionCount,
-//             0
-//         )
-//         // Average daily earnings
-//         const averageDailyEarnings = totalEarnings / dailyEarnings.length || 0
-//         // Top earning day
-//         const topEarningDay = dailyEarnings.reduce(
-//             (max, curr) => (curr.total > max.total ? curr : max),
-//             dailyEarnings[0]
-//         )
-//         // Top transaction count day
-//         const topTransactionDay = dailyEarnings.reduce(
-//             (max, curr) =>
-//                 curr.transactionCount > max.transactionCount ? curr : max,
-//             dailyEarnings[0]
-//         )
-//         // Total lost sales in the range
-//         const totalLostSales = lostSales.reduce(
-//             (acc, curr) => acc + curr.totalLost,
-//             0
-//         )
-//         // Total lost orders
-//         const totalLostOrders = lostSales.reduce(
-//             (acc, curr) => acc + curr.lostOrderCount,
-//             0
-//         )
-//         // Average transaction value
-//         const averageTransactionValue = totalEarnings / totalTransactions || 0
-
-//         // Response with detailed data
-//         res.status(200).json(
-//             new ApiResponse(
-//                 200,
-//                 {
-//                     dailyEarnings,
-//                     startDate,
-//                     endDate,
-//                     totalTransactions,
-//                     totalEarnings,
-//                     averageDailyEarnings,
-//                     topEarningDay, // Day with the highest earnings
-//                     topTransactionDay, // Day with the most transactions
-//                     totalLostSales, // Total value of lost sales (cancelled/abandoned)
-//                     totalLostOrders, // Count of lost sales
-//                     averageTransactionValue,
-//                     revenueByCategory, // Revenue breakdown by product/service category
-//                 },
-//                 'Sales data retrieved successfully'
-//             )
-//         )
-//     } catch (error) {
-//         throw new ApiError(500, error.message || 'Error retrieving sales data')
-//     }
-// })
-
-
-
-
-
-
-
-
 
 
 export const fetchDailyEarnings = asyncHandler(async (req, res) => {
@@ -429,20 +258,17 @@ export const fetchDailyEarnings = asyncHandler(async (req, res) => {
             status: { $in: ['cancelled', 'abandoned'] },
         };
 
-        // Date range validation
         if (!startDate && !endDate) {
             const today = new Date();
             endDate = today.toISOString().split('T')[0]; // Current date
             const lastWeek = new Date(today.setDate(today.getDate() - 7));
             startDate = lastWeek.toISOString().split('T')[0]; // 7 days ago
         } else {
-            // Validate provided date formats
             if (!isValidDate(startDate) || !isValidDate(endDate)) {
                 throw new ApiError(400, 'Invalid date format. Use YYYY-MM-DD.');
             }
         }
 
-        // Construct match condition for date range
         completedMatchCondition.createdAt = {};
         lostMatchCondition.createdAt = {};
         if (startDate) {
@@ -454,7 +280,6 @@ export const fetchDailyEarnings = asyncHandler(async (req, res) => {
             lostMatchCondition.createdAt.$lte = new Date(endDate);
         }
 
-        // Fetch completed daily earnings
         const dailyEarnings = await Order.aggregate([
             { $match: completedMatchCondition },
             {
@@ -467,7 +292,6 @@ export const fetchDailyEarnings = asyncHandler(async (req, res) => {
             { $sort: { _id: 1 } },
         ]);
 
-        // Fetch lost sales
         const lostSales = await Order.aggregate([
             { $match: lostMatchCondition },
             {
@@ -480,20 +304,18 @@ export const fetchDailyEarnings = asyncHandler(async (req, res) => {
             { $sort: { _id: 1 } },
         ]);
 
-        // Fetch revenue by product/service category
         const revenueByCategory = await Order.aggregate([
             { $match: completedMatchCondition },
             {
                 $group: {
-                    _id: '$category', // Group by category field
+                    _id: '$category',
                     totalCategoryEarnings: { $sum: '$totalAmount' },
-                    categoryOrderCount: { $sum: 1 }, // Count orders by category
+                    categoryOrderCount: { $sum: 1 }, 
                 },
             },
-            { $sort: { totalCategoryEarnings: -1 } }, // Sort by highest earning category
+            { $sort: { totalCategoryEarnings: -1 } }, 
         ]);
 
-        // Calculate totals and averages
         const totalEarnings = dailyEarnings.reduce((acc, curr) => acc + curr.total, 0);
         const totalTransactions = dailyEarnings.reduce((acc, curr) => acc + curr.transactionCount, 0);
         const averageDailyEarnings = totalEarnings / dailyEarnings.length || 0;
@@ -503,7 +325,6 @@ export const fetchDailyEarnings = asyncHandler(async (req, res) => {
         const totalLostOrders = lostSales.reduce((acc, curr) => acc + curr.lostOrderCount, 0);
         const averageTransactionValue = totalEarnings / totalTransactions || 0;
 
-        // Response with detailed data
         res.status(200).json(new ApiResponse(200, {
             summary: {
                 startDate,

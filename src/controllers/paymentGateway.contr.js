@@ -42,7 +42,6 @@ export const createOrder = asyncHandler(async (req, res) => {
         quantity,
     }))
 
-    // Create the order in the database
     const newOrder = new Order({
         user: userId,
         products: products.map((p) => ({
@@ -55,9 +54,8 @@ export const createOrder = asyncHandler(async (req, res) => {
         invoicePdf: null,
     })
 
-    // Save the order with validation before saving
     await newOrder.save({ validateBeforeSave: false })
-    // Create Stripe session with the order ID in metadata
+
     let sess ="null"
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -85,7 +83,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     sess = session.id
     newOrder.orderId = session.id
     await newOrder.save()
-    // res.redirect(303, session.url)
     res.status(201).json(
         new ApiResponse(
             201,

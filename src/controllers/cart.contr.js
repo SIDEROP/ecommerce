@@ -116,7 +116,6 @@ export const removeFromCart = asyncHandler(async (req, res) => {
         (item) => item.productId.toString() === productId
     )
     
-    console.log(req.params,productIndex)
     if (productIndex === -1) {
         throw new ApiError(404, 'Product not found in cart')
     }

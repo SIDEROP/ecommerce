@@ -35,6 +35,7 @@ import paymentGatewayRoutes from './routes/paymentGateway.routes.js';
 import dashboardRoutes from './routes/dashbord.routes.js';
 import ratingRoutes from './routes/rating.routes.js';
 import wishlistRoutes from './routes/wishlist.routes.js';
+import addressRoutes from './routes/address.routes.js';
 
 // use rotes
 app.use('/api/v1/auth', userRoutes)
@@ -42,6 +43,7 @@ app.use('/api/v1/auth', userRoutes)
     .use('/api/v1/cart', cartRoutes)
     .use('/api/v1/order', orderRoutes)
     .use('/api/v1/wishlist', wishlistRoutes)
+    .use('/api/v1/address', addressRoutes)
     .use('/api/v1/paymentGateway', paymentGatewayRoutes)
     .use('/api/v1/dashboard', dashboardRoutes)
     .use('/api/v1/rating', ratingRoutes);

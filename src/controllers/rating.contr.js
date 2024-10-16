@@ -33,7 +33,7 @@ export const getProductRatingsComments = async (req, res) => {
 
     try {
         const ratingsComments = await RatingComment.find({ product: productId })
-            .populate('user', 'username img') // Populate user fields as needed
+            .populate('user', 'username img') 
             .exec();
 
         res.status(200).json(ratingsComments);

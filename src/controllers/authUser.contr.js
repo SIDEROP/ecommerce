@@ -3,8 +3,8 @@ import { User } from '../models/User.model.js';
 import ApiError from '../utils/apiError.js';
 import ApiResponse from '../utils/apiResponse.js';
 import { jwtTokenGenerat } from '../utils/jwtToken.js'; // Adjust the path as necessary
-
 // Register User
+
 export const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password, gender, role = 'user' } = req.body;
 
@@ -14,9 +14,9 @@ export const registerUser = asyncHandler(async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-       return res.status(400).json(
-            new ApiError(400, 'Email is already registered')
-        );
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Email is already registered'));
     }
 
     const urlImg = `https://avatar.iran.liara.run/username?username=${username}&bold=false&length=1`;
@@ -70,7 +70,12 @@ export const loginUser = asyncHandler(async (req, res) => {
     res.status(200).json(
         new ApiResponse(
             200,
-            {token, username: user.username, email: user.email, role: user.role },
+            {
+                token,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            },
             'User logged in successfully'
         )
     );
@@ -98,7 +103,12 @@ export const loginAdmin = asyncHandler(async (req, res) => {
     res.status(200).json(
         new ApiResponse(
             200,
-            { token,username: user.username, email: user.email, role: user.role },
+            {
+                token,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            },
             'User logged in successfully'
         )
     );
@@ -107,7 +117,9 @@ export const loginAdmin = asyncHandler(async (req, res) => {
 // reLogin user
 export const reLoginUser = asyncHandler(async (req, res) => {
     const { userId } = req.user;
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId)
+        .select('-password')
+        .populate('address');
     if (!user) {
         throw new ApiError(404, 'User not found');
     }
@@ -123,15 +135,14 @@ export const logoutUser = asyncHandler((req, res) => {
         secure: process.env.NODE_ENV === 'production',
         maxAge: 0,
     });
-    let token = null
+    let token = null;
 
     res.status(200).json(
-        new ApiResponse(200, {token}, 'User logged out successfully')
+        new ApiResponse(200, { token }, 'User logged out successfully')
     );
 });
 
 export const updateUser = asyncHandler(async (req, res) => {
-    console.log(req.body);
     const { username, email, passwordAdmin, gender, role } = req.body;
     const { userId } = req.user;
 
