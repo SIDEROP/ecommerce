@@ -18,7 +18,6 @@ export const createOrUpdateAddress = asyncHandler(async (req, res) => {
         landmark,
     } = req.body;
 
-    // Validate required fields using some()
     if (
         [street, city, state, postalCode, country, contacts].some(
             (data) => !data
@@ -27,14 +26,12 @@ export const createOrUpdateAddress = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All required fields must be filled.');
     }
 
-    // Check if the user exists
     const user = await User.findById(userId).populate('address');
     if (!user) {
         throw new ApiError(404, 'User not found.');
     }
 
     if (!user.address) {
-        // If the user doesn't have an address, create a new one
         const newAddress = await Address.create({
             street,
             city,
@@ -46,7 +43,6 @@ export const createOrUpdateAddress = asyncHandler(async (req, res) => {
             landmark,
         });
 
-        // Associate the new address ID with the user
         user.address = newAddress._id;
         await user.save();
 
@@ -60,7 +56,6 @@ export const createOrUpdateAddress = asyncHandler(async (req, res) => {
                 )
             );
     } else {
-        // If the user already has an address, update it
         const updatedAddress = await Address.findByIdAndUpdate(
             user?.address._id,
             {

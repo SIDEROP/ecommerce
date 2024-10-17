@@ -15,7 +15,7 @@ const auth = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
 
-        const foundUser = await User.findById(decoded.userId)
+        const foundUser = await User.findById(decoded.userId).populate('address')
         if (!foundUser) {
             throw new ApiError(404, 'User not found')
         }
@@ -31,7 +31,7 @@ const auth = async (req, res, next) => {
             username:foundUser.username,
             email:foundUser.email,
             role:foundUser.role,
-            address:foundUser.addresses
+            address:foundUser.address
         }
 
         next()

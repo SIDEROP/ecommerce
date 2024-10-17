@@ -135,7 +135,7 @@ const productSchema = new mongoose.Schema(
             required: true,
         },
         flavors: {
-            type: [String],
+            type: String,
         },
         brand: {
             type: String,
@@ -148,7 +148,7 @@ const productSchema = new mongoose.Schema(
             default: 'in stock',
         },
         size: {
-            type: [String], 
+            type: [String],
             enum: ['S', 'M', 'L', 'XL', 'XXL'],
         },
         material: {

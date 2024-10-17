@@ -14,9 +14,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        return res
-            .status(400)
-            .json(new ApiError(400, 'Email is already registered'));
+        throw new ApiError(400, 'Account is already registered');
     }
 
     const urlImg = `https://avatar.iran.liara.run/username?username=${username}&bold=false&length=1`;
@@ -57,12 +55,12 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email, role });
     if (!user) {
-        throw new ApiError(401, 'Invalid credentials');
+        throw new ApiError(401, 'Please create your account');
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-        throw new ApiError(401, 'Invalid credentials');
+        throw new ApiError(401, 'Email and password do not match');
     }
 
     const token = jwtTokenGenerat(res, user._id);
@@ -91,12 +89,12 @@ export const loginAdmin = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email, role });
     if (!user) {
-        throw new ApiError(401, 'Invalid credentials');
+        throw new ApiError(401, 'Admin account not found');
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-        throw new ApiError(401, 'Invalid credentials');
+        throw new ApiError(401, 'Invalid email or password. Please try again.');
     }
     const token = jwtTokenGenerat(res, user._id);
 
@@ -107,7 +105,7 @@ export const loginAdmin = asyncHandler(async (req, res) => {
                 token,
                 username: user.username,
                 email: user.email,
-                role: user.role
+                role: user.role,
             },
             'User logged in successfully'
         )
@@ -155,14 +153,22 @@ export const updateUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'User not found');
     }
 
+    if (
+        username === user.username &&
+        email === user.email &&
+        gender === user.gender &&
+        role === user.role &&
+        !passwordAdmin
+    ) {
+        throw new ApiError(400, 'already up to date');
+    }
+    
     if (username) user.username = username;
 
     if (email && email !== user.email) {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            res.status(400).json({
-                error: 'email already use. Please choose another one',
-            });
+            throw new ApiError(400, 'email already use.');
         }
         user.email = email;
     }
