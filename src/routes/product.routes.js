@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import auth from '../middlewares/auth.js';
-import optionalAuth from '../utils/optionalAuth.js';
+import optionalAuth from '../middlewares/optionalAuth.js';
+
 import {
     createProduct,
     deleteProduct,
@@ -10,17 +11,20 @@ import {
     searchProducts,
     updateProduct,
 } from '../controllers/product.contr.js';
-import { uploadSingleImage, uploadMultipleImages } from '../middlewares/multer.js';
+import {
+    uploadSingleImage,
+    uploadMultipleImages,
+} from '../middlewares/multer.js';
 
 const routes = Router();
 
 routes
-    .post('/createProduct', auth, uploadMultipleImages, createProduct) 
+    .post('/createProduct', auth, uploadMultipleImages, createProduct)
     .get('/getProduct', getProduct)
     .delete('/deleteProduct/:productId', auth, deleteProduct)
     .put('/updateProduct/:productId', auth, uploadMultipleImages, updateProduct)
-    .get('/getProduct/:productId',optionalAuth, getProductById)
+    .get('/getProduct/:productId', optionalAuth, getProductById)
     .get('/searchProducts', searchProducts)
-    .get('/searchCategory', searchCategory)
+    .get('/searchCategory', searchCategory);
 
 export default routes;

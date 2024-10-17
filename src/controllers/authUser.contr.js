@@ -9,12 +9,16 @@ export const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password, gender, role = 'user' } = req.body;
 
     if ([username, email, password, role].some((some) => !some)) {
-        throw new ApiError(400, 'All fields are required');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'All fields are required'));
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        throw new ApiError(400, 'Account is already registered');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Account is already registered'));
     }
 
     const urlImg = `https://avatar.iran.liara.run/username?username=${username}&bold=false&length=1`;
@@ -50,17 +54,23 @@ export const loginUser = asyncHandler(async (req, res) => {
     const { email, password, role = 'user' } = req.body;
 
     if ([email, password].some((data) => !data)) {
-        throw new ApiError(400, 'Email and password are required');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Email and password are required'));
     }
 
     const user = await User.findOne({ email, role });
     if (!user) {
-        throw new ApiError(401, 'Please create your account');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Please create your account'));
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-        throw new ApiError(401, 'Email and password do not match');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Email and password do not match'));
     }
 
     const token = jwtTokenGenerat(res, user._id);
@@ -84,17 +94,28 @@ export const loginAdmin = asyncHandler(async (req, res) => {
     const { email, password, role = 'admin' } = req.body;
 
     if ([email, password].some((data) => !data)) {
-        throw new ApiError(400, 'Email and password are required');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Email and password are required'));
     }
 
     const user = await User.findOne({ email, role });
     if (!user) {
-        throw new ApiError(401, 'Admin account not found');
+        return res
+            .status(400)
+            .json(new ApiError(400, 'Admin account not found'));
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-        throw new ApiError(401, 'Invalid email or password. Please try again.');
+        return res
+            .status(400)
+            .json(
+                new ApiError(
+                    400,
+                    'Invalid email or password. Please try again.'
+                )
+            );
     }
     const token = jwtTokenGenerat(res, user._id);
 
@@ -119,7 +140,7 @@ export const reLoginUser = asyncHandler(async (req, res) => {
         .select('-password')
         .populate('address');
     if (!user) {
-        throw new ApiError(404, 'User not found');
+        return res.status(400).json(new ApiError(400, 'User not found'));
     }
     res.status(200).json(
         new ApiResponse(200, user, 'Session refreshed successfully')
@@ -145,12 +166,12 @@ export const updateUser = asyncHandler(async (req, res) => {
     const { userId } = req.user;
 
     if (!userId) {
-        throw new ApiError(400, 'User ID is required');
+        return res.status(400).json(new ApiError(400, 'User ID is required'));
     }
 
     const user = await User.findById(userId);
     if (!user) {
-        throw new ApiError(404, 'User not found');
+        return res.status(400).json(new ApiError(400, 'User not found'));
     }
 
     if (
@@ -160,15 +181,17 @@ export const updateUser = asyncHandler(async (req, res) => {
         role === user.role &&
         !passwordAdmin
     ) {
-        throw new ApiError(400, 'already up to date');
+        return res.status(400).json(new ApiError(400, 'already up to date'));
     }
-    
+
     if (username) user.username = username;
 
     if (email && email !== user.email) {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            throw new ApiError(400, 'email already use.');
+            return res
+                .status(400)
+                .json(new ApiError(400, 'email already use.'));
         }
         user.email = email;
     }
