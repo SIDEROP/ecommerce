@@ -77,8 +77,8 @@ export const createOrder = asyncHandler(async (req, res) => {
         payment_method_types: ['card'],
         line_items: lineItems,
         mode: 'payment',
-        success_url: `${process.env.FRONTEND_PATH}/ecommerceApp/success/${newOrder._id}`,
-        cancel_url: `${process.env.FRONTEND_PATH}/ecommerceApp/cancel/${newOrder._id}`,
+        success_url: `${process.env.FRONTEND_PATH}/success/${newOrder._id}`,
+        cancel_url: `${process.env.FRONTEND_PATH}/cancel/${newOrder._id}`,
         customer_email: email,
         billing_address_collection: 'required',
         shipping_address_collection: {

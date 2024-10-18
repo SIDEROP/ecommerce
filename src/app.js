@@ -38,6 +38,7 @@ import wishlistRoutes from './routes/wishlist.routes.js';
 import addressRoutes from './routes/address.routes.js';
 
 // use rotes
+app.use(express.static("dist"))
 app.use('/api/v1/auth', userRoutes)
     .use('/api/v1/products', productRoutes)
     .use('/api/v1/cart', cartRoutes)
